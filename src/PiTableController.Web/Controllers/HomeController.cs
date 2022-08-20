@@ -20,9 +20,10 @@ public class HomeController : Controller
             
             Vl53L0X laserMeasurement = new(I2cDevice.Create(new I2cConnectionSettings(1, Vl53L0X.DefaultI2cAddress)));
             laserMeasurement.Precision = Precision.LongRange;
-            laserMeasurement.StartContinuousMeasurement(10);
+            laserMeasurement.StartContinuousMeasurement(100);
 
             using GpioController controller = new();
+            
             controller.OpenPin(PinUp, PinMode.Output);
             controller.OpenPin(PinDown, PinMode.Output);
 
@@ -49,31 +50,31 @@ public class HomeController : Controller
                 if (timeElapsed.Seconds > 15)
                     break;
 
-                if (difference > 0)
+                switch (difference)
                 {
-                    controller.Write(PinUp, false);
-                    controller.Write(PinDown, true);
-                }
-                else if (difference < 0)
-                {
-                    controller.Write(PinUp, true);
-                    controller.Write(PinDown, false);
-                }
-                else
-                {
-                    controller.Write(PinUp, false);
-                    controller.Write(PinDown, false);
+                    case > 0:
+                        controller.Write(PinUp, false);
+                        controller.Write(PinDown, true);
+                        break;
+                    case < 0:
+                        controller.Write(PinUp, true);
+                        controller.Write(PinDown, false);
+                        break;
+                    default:
+                        controller.Write(PinUp, false);
+                        controller.Write(PinDown, false);
+                        break;
                 }
 
                 prevDistance = distance;
-                Thread.Sleep(100);
+                Thread.Sleep(250);
             }
-
+                
             return $"height: {distance}";
         }
         catch (Exception ex)
         {
-            return $"message:{ex.Message}, stacktrace: {ex.StackTrace}";
+            return $"message: {ex.Message}, stacktrace: {ex.StackTrace}";
         }
     }
 }
