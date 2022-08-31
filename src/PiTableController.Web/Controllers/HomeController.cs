@@ -8,7 +8,7 @@ namespace PiTableController.Web.Controllers;
 public class HomeController : Controller
 {
     private const int PinUp = 17;
-    private const int PinDown = 27;
+    private const int PinDown = 18;
 
     [HttpGet]
     public string Index(int height)
